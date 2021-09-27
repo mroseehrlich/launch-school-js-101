@@ -11,7 +11,8 @@ console.log("What's the second number?");
 let number2 = readline.question();
 
 // Ask the user for the operation to perform
-console.log("What operation would you like to perform?\n1) Add 2) Subtract 3) Multiply 4) Divide")
+console.log(`What operation would you like to perform?\n
+  1) Add 2) Subtract 3) Multiply 4) Divide`);
 let operation = readline.question();
 
 // Perform the operation on the two numbers
