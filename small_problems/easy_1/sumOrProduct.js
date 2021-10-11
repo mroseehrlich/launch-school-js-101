@@ -34,5 +34,23 @@ let operation = readline.question('Enter "s" to compute the sum, or "p" to compu
 if (operation === "p") {
   console.log(`The product of the integers between 1 and ${int} is ${calculateProduct(int)}`);
 } else if (operation === "s") {
-  console.log(`The product of the integers between 1 and ${int} is ${calculateSum(int)}`);
+  console.log(`The sum of the integers between 1 and ${int} is ${calculateSum(int)}`);
+}
+
+// Further Exploration
+let numbers = readline.question("Please enter a list of integers greater than 0, separated by commas: ");
+let numbersArray = numbers.split(", ").map(num => parseInt(num, 10));
+
+const calculateProductFromArr = (arr) => {
+  return arr.reduce((num, total) => total * num, 1);
+};
+
+const calculateSumFromArr = (arr) => {
+  return arr.reduce((num, total) => total + num, 0);
+};
+
+if (operation === "p") {
+  console.log(`The product of ${numbers} is ${calculateProductFromArr(numbersArray)}`);
+} else if (operation === "s") {
+  console.log(`The sum of ${numbers} is ${calculateSumFromArr(numbersArray)}`);
 }
