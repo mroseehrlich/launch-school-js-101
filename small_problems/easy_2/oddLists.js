@@ -3,6 +3,7 @@ const oddities = (array) => {
     if (index % 2 === 0 ) {
       return value;
     }
+    return false;
   });
   return oddIndex;
 };
