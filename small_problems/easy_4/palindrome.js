@@ -1,7 +1,7 @@
 // const isPalindrome = string => {
 //   let stringArr = [...string];
 //   let reverseStringArr = [...string].reverse();
-// 
+//
 //   return stringArr.every((char, index) => {
 //     return char === reverseStringArr[index];
 //   });
