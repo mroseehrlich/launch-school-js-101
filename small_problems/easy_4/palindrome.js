@@ -1,11 +1,13 @@
-const isPalindrome = string => {
-  let stringArr = [...string];
-  let reverseStringArr = [...string].reverse();
+// const isPalindrome = string => {
+//   let stringArr = [...string];
+//   let reverseStringArr = [...string].reverse();
+// 
+//   return stringArr.every((char, index) => {
+//     return char === reverseStringArr[index];
+//   });
+// };
 
-  return stringArr.every((char, index) => {
-    return char === reverseStringArr[index];
-  });
-};
+const isPalindrome = (string) => string === [...string].reverse().join('');
 
 console.log(isPalindrome('madam'));               // true
 console.log(isPalindrome('Madam'));               // false (case matters)
