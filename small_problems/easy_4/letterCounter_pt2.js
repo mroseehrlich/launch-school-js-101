@@ -5,13 +5,13 @@ const wordSizes = (string) => {
 
   words.forEach(word => {
     if (word.length === 0) return;
-    word = word.replace(/[^A-Za-z]/gi, '');
+    let cleanWord = word.replace(/[^A-Za-z]/gi, '');
 
-    if (!sizes[word.length]) {
-      sizes[word.length] = 0;
+    if (!sizes[cleanWord.length]) {
+      sizes[cleanWord.length] = 0;
     }
 
-    sizes[word.length] += 1;
+    sizes[cleanWord.length] += 1;
 
   });
 
