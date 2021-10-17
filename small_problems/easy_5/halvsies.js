@@ -1,8 +1,6 @@
 const halvsies = (array) => {
-  let halfLength = array.length % 2 === 0 ? array.length / 2
-    : (array.length / 2) + 1;
-  return [[...array.slice(0, halfLength)],
-    [...array.slice(halfLength)]];
+  let halfLength = Math.ceil(array.length / 2);
+  return [array.slice(0, halfLength), array.slice(halfLength)];
 };
 
 console.log(halvsies([1, 2, 3, 4]));       // [[1, 2], [3, 4]]
