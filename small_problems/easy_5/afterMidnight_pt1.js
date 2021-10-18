@@ -11,7 +11,6 @@ const timeOfDay = deltaMinutes => {
 
   let hours = Math.floor(deltaMinutes / MINUTES_PER_HOUR);
   let minutes = deltaMinutes % MINUTES_PER_HOUR;
-  console.log(`${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`);
   return `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
 };
 
