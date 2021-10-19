@@ -1,16 +1,21 @@
 const isBalanced = string => {
-  let parentheses = 0;
+  let punctuation = { parentheses: 0, doubleQuotes: 0, singleQuotes:0 };
+
   for (let idx = 0; idx < string.length; idx += 1) {
     if (string[idx] === "(") {
-      parentheses += 1;
+      punctuation.parentheses += 1;
     } else if (string[idx] === ")") {
-      parentheses -= 1;
+      punctuation.parentheses -= 1;
+    } else if (string[idx] === "'") {
+      punctuation.singleQuotes += 1;
+    } else if (string[idx] === '"') {
+      punctuation.doubleQuotes += 1;
     }
 
-    if (parentheses < 0 ) return false;
+    if (punctuation.parentheses < 0 ) return false;
   }
-
-  return parentheses === 0;
+  return punctuation.parentheses === 0 &&
+    punctuation.singleQuotes % 2 === 0 && punctuation.doubleQuotes % 2 === 0;
 };
 
 console.log(isBalanced("What (is) this?") === true);
