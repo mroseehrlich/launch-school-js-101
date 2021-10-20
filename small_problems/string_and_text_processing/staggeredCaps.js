@@ -1,13 +1,9 @@
 const staggeredCase = string => {
   return [...string].map((letter, index) => {
-    if (/[A-Za-z]/.test(letter)) {
-      if (index % 2 === 0) {
-        return letter.toUpperCase();
-      } else {
-        return letter.toLowerCase();
-      }
+    if (index % 2 === 0) {
+      return letter.toUpperCase();
     } else {
-      return letter;
+      return letter.toLowerCase();
     }
   }).join('');
 };
