@@ -1,5 +1,7 @@
 const readline = require('readline-sync');
+
 const VALID_CHOICES = ['rock', 'paper', 'scissors', 'lizard', 'spock'];
+
 const WINNING_COMBOS = {
   rock:     ['scissors', 'lizard'],
   paper:    ['rock',     'spock'],
@@ -18,17 +20,56 @@ function displayWinner(choice, computerChoice) {
   }
 
   if (playerWins(computerChoice, choice)) {
-    prompt("It's a tie!");
+
+    prompt("Computer wins!");
   }
 
   if (choice === computerChoice) {
-    prompt("Computer wins!");
+    prompt("It's a tie!");
   }
 }
 
 function prompt(message) {
   console.log(`=> ${message}`);
 }
+
+function promptUserChoice () {
+  prompt(`Choose one: ${VALID_CHOICES.join(', ')}`);
+  prompt('Valid choices can begin with a single letter, but please indicate "sc" for scissors or "sp" for spock');
+  let choice = readline.question();
+  let validShortformChoices = VALID_CHOICES.map((word) => {
+    return word.slice(0, choice.length);
+  });
+
+  if (validShortformChoices.includes(choice) && choice === "s") {
+    while (choice === "s") {
+      prompt('Please indicate "sc" for scissors or "sp" for spock');
+      choice = readline.question();
+    }
+  }
+
+  choice = validateUserChoice(choice);
+  return choice;
+}
+
+function validateUserChoice(choice) {
+  let validShortformChoices = VALID_CHOICES.map((word) => {
+    return word.slice(0, choice.length);
+  });
+
+  while ((!VALID_CHOICES.includes(choice) &&
+        !validShortformChoices.includes(choice))) {
+
+    prompt("That's not a valid choice");
+    choice = readline.question();
+  }
+
+  if (!VALID_CHOICES.includes(choice)) {
+    choice = VALID_CHOICES[validShortformChoices.indexOf(choice)];
+  }
+  return choice;
+}
+
 
 /*
 **  1. If player a chooses rock and player b chooses scissors, player a wins.
@@ -42,13 +83,7 @@ function prompt(message) {
 */
 
 while (true) {
-  prompt(`Choose one: ${VALID_CHOICES.join(', ')}`);
-  let choice = readline.question();
-
-  while (!VALID_CHOICES.includes(choice)) {
-    prompt("That's not a valid choice");
-    choice = readline.question();
-  }
+  let choice = promptUserChoice();
 
   let randomIndex = Math.floor(Math.random() * VALID_CHOICES.length);
   let computerChoice = VALID_CHOICES[randomIndex];
