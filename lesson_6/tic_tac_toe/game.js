@@ -180,6 +180,17 @@ function alternatePlayer(player) {
   return 'player';
 }
 
+function playAgain() {
+  let playAgain = readline.question().trim().toLowerCase();
+
+  while (!['y', 'n'].includes(playAgain)) {
+    prompt('That is not a valid option. Please enter y or n.');
+    playAgain = readline.question().trim().toLowerCase();
+  }
+
+  return playAgain;
+}
+
 prompt('Welcome to Tic Tac Toe!');
 
 while (true) {
@@ -223,8 +234,8 @@ while (true) {
 
     if (score.player < WINNING_SCORE || score.computer < WINNING_SCORE) {
       prompt('Play again? (y or n)');
-      playGame = readline.question().toLowerCase()[0];
-      if (playGame !== 'y') break;
+      playGame = playAgain();
+      if (playGame === 'n') break;
     } else {
       let winner = Object.entries(score)
         .filter(score => score[1] === WINNING_SCORE)[0][0];
@@ -234,11 +245,11 @@ while (true) {
     }
   }
 
-  if (playGame !== 'y') break;
+  if (playGame === 'n') break;
 
   prompt('Play another match? (y or n)');
-  playGame = readline.question().toLowerCase()[0];
-  if (playGame !== 'y') break;
+  playGame = playAgain();
+  if (playGame === 'n') break;
 }
 
 prompt('Thanks for playing Tic Tac Toe!');
