@@ -5,6 +5,12 @@ const INITIAL_MARKER = ' ';
 const HUMAN_MARKER = 'X';
 const COMPUTER_MARKER = 'O';
 
+const WINNING_LINES = [
+  [1, 2, 3], [4, 5, 6], [7, 8, 9], // rows
+  [1, 4, 7], [2, 5, 8], [3, 6, 9], // columns
+  [1, 5, 9], [3, 5, 7]             // diagonals
+];
+
 const WINNING_SCORE = 5;
 
 function displayBoard(board) {
@@ -61,9 +67,36 @@ function playerChoosesSquare(board) {
 }
 
 function computerChoosesSquare(board) {
-  let randomIndex = Math.floor(Math.random() * emptySquares.length);
-  let square = emptySquares(board)[randomIndex];
+  let square;
+
+  for (let idx = 0; idx < WINNING_LINES.length; idx++) {
+    let line = WINNING_LINES[idx];
+    square = computerDefendsSquare(line, board);
+    if (square) break;
+  }
+
+  if (!square) {
+    let randomIndex = Math.floor(Math.random() * emptySquares.length);
+    square = emptySquares(board)[randomIndex];
+  }
+
   board[square] = COMPUTER_MARKER;
+}
+
+function computerDefendsSquare(line, board) {
+  let markerInLine = line.map(square => board[square]);
+
+  if (markerInLine.filter(
+    squareValue => squareValue === HUMAN_MARKER).length === 2
+  ) {
+    let emptySquare = line.find(square => board[square] === ' ');
+
+    if (emptySquare !== undefined) {
+      return emptySquare;
+    }
+  }
+
+  return null;
 }
 
 function boardFull(board) {
@@ -75,14 +108,9 @@ function someoneWon(board) {
 }
 
 function detectWinner(board) {
-  let winningLines = [
-    [1, 2, 3], [4, 5, 6], [7, 8, 9], // rows
-    [1, 4, 7], [2, 5, 8], [3, 6, 9], // columns
-    [1, 5, 9], [3, 5, 7]             // diagonals
-  ];
 
-  for (let line = 0; line < winningLines.length; line += 1) {
-    let [sq1, sq2, sq3] = winningLines[line];
+  for (let line = 0; line < WINNING_LINES.length; line += 1) {
+    let [sq1, sq2, sq3] = WINNING_LINES[line];
 
     if (board[sq1] === HUMAN_MARKER &&
         board[sq2] === HUMAN_MARKER &&
@@ -139,7 +167,7 @@ while (true) {
 
     matchNumber += 1;
 
-    if (score.player < WINNING_SCORE || score.scomputer < WINNING_SCORE) {
+    if (score.player < WINNING_SCORE || score.computer < WINNING_SCORE) {
       prompt('Play again? (y or n)');
       playGame = readline.question().toLowerCase()[0];
       if (playGame !== 'y') break;
