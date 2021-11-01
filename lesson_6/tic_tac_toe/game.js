@@ -5,6 +5,8 @@ const INITIAL_MARKER = ' ';
 const HUMAN_MARKER = 'X';
 const COMPUTER_MARKER = 'O';
 
+const WINNING_SCORE = 5;
+
 function displayBoard(board) {
   console.clear();
 
@@ -97,30 +99,64 @@ function detectWinner(board) {
 }
 
 while (true) {
-  let board = initializeBoard();
-  displayBoard(board);
+  let score = {
+    player: 0,
+    computer: 0
+  };
+
+  let playGame;
+  let matchNumber = 1;
 
   while (true) {
+    let board = initializeBoard();
     displayBoard(board);
 
-    playerChoosesSquare(board);
-    if (someoneWon(board) || boardFull(board)) break;
+    while (true) {
+      displayBoard(board);
 
-    computerChoosesSquare(board);
-    if (someoneWon(board) || boardFull(board)) break;
+      playerChoosesSquare(board);
+      if (someoneWon(board) || boardFull(board)) break;
+
+      computerChoosesSquare(board);
+      if (someoneWon(board) || boardFull(board)) break;
+    }
+
+    displayBoard(board);
+
+    if (someoneWon(board)) {
+      prompt(`${detectWinner(board)} won!`);
+      score[detectWinner(board).toLowerCase()] += 1;
+
+      if (matchNumber >= 2) {
+        prompt(`The current score is:`);
+        prompt(`Player: ${score.player}`);
+        prompt(`Computer: ${score.computer}`);
+      }
+
+    } else {
+      prompt('It\'s a tie!');
+    }
+
+    matchNumber += 1;
+
+    if (score.player < WINNING_SCORE || score.scomputer < WINNING_SCORE) {
+      prompt('Play again? (y or n)');
+      playGame = readline.question().toLowerCase()[0];
+      if (playGame !== 'y') break;
+    } else {
+      let winner = Object.entries(score)
+        .filter(score => score[1] === WINNING_SCORE)[0][0];
+      let capitalizedWinner = winner[0].toUpperCase().concat(winner.slice(1));
+      prompt(`${capitalizedWinner} won the match!`);
+      break;
+    }
   }
 
-  displayBoard(board);
+  if (playGame !== 'y') break;
 
-  if (someoneWon(board)) {
-    prompt(`${detectWinner(board)} won!`);
-  } else {
-    prompt('It\'s a tie!');
-  }
-
-  prompt('Play again? (y or n)');
-  let answer = readline.question().toLowerCase()[0];
-  if (answer !== 'y') break;
+  prompt('Play another match? (y or n)');
+  playGame = readline.question().toLowerCase()[0];
+  if (playGame !== 'y') break;
 }
 
 prompt('Thanks for playing Tic Tac Toe!');
