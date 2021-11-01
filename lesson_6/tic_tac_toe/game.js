@@ -85,6 +85,10 @@ function computerChoosesSquare(board) {
     }
   }
 
+  if (!square && board['5'] === INITIAL_MARKER) {
+    square = '5';
+  }
+
   // random square
   if (!square) {
     let randomIndex = Math.floor(Math.random() * emptySquares(board).length);
