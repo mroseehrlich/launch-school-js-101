@@ -69,27 +69,39 @@ function playerChoosesSquare(board) {
 function computerChoosesSquare(board) {
   let square;
 
+  // defense
   for (let idx = 0; idx < WINNING_LINES.length; idx++) {
     let line = WINNING_LINES[idx];
-    square = computerDefendsSquare(line, board);
+    square = computerDefendsSquare(line, board, HUMAN_MARKER);
     if (square) break;
   }
 
+  // offence
   if (!square) {
-    let randomIndex = Math.floor(Math.random() * emptySquares.length);
+    for (let idx = 0; idx < WINNING_LINES.length; idx++) {
+      let line = WINNING_LINES[idx];
+      square = computerDefendsSquare(line, board, COMPUTER_MARKER);
+      if (square) break;
+    }
+  }
+
+  // random square
+  if (!square) {
+    let randomIndex = Math.floor(Math.random() * emptySquares(board).length);
     square = emptySquares(board)[randomIndex];
   }
+
 
   board[square] = COMPUTER_MARKER;
 }
 
-function computerDefendsSquare(line, board) {
+function computerDefendsSquare(line, board, marker) {
   let markerInLine = line.map(square => board[square]);
 
   if (markerInLine.filter(
-    squareValue => squareValue === HUMAN_MARKER).length === 2
+    squareValue => squareValue === marker).length === 2
   ) {
-    let emptySquare = line.find(square => board[square] === ' ');
+    let emptySquare = line.find(square => board[square] === INITIAL_MARKER);
 
     if (emptySquare !== undefined) {
       return emptySquare;
