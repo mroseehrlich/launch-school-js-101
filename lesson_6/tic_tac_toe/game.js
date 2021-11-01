@@ -95,7 +95,6 @@ function computerChoosesSquare(board) {
     square = emptySquares(board)[randomIndex];
   }
 
-
   board[square] = COMPUTER_MARKER;
 }
 
@@ -142,6 +141,47 @@ function detectWinner(board) {
   return null;
 }
 
+function choosePlayer() {
+  let validChoices = ['player', 'computer', 'choose'];
+
+  prompt(`Choose who goes first. Enter ${joinOr(validChoices)}.`);
+  prompt('Picking choose will decide for you.');
+
+  let playerChoice = readline.question().trim().toLowerCase();
+
+  while (!validChoices.includes(playerChoice)) {
+    prompt(`That is not a valid option. please enter ${joinOr(validChoices)}.`);
+    playerChoice = readline.question();
+  }
+
+  if (playerChoice === 'choose') {
+    let players = ['player', 'computer'];
+
+    let randomIndex = Math.floor(Math.random() * players.length);
+    playerChoice = players[randomIndex];
+  }
+
+  return playerChoice;
+}
+
+function chooseSquare(board, currentPlayer) {
+  if (currentPlayer === 'player') {
+    return playerChoosesSquare(board);
+  }
+
+  return computerChoosesSquare(board);
+}
+
+function alternatePlayer(player) {
+  if (player === 'player') {
+    return 'computer';
+  }
+
+  return 'player';
+}
+
+prompt('Welcome to Tic Tac Toe!');
+
 while (true) {
   let score = {
     player: 0,
@@ -152,16 +192,14 @@ while (true) {
   let matchNumber = 1;
 
   while (true) {
+    let currentPlayer = choosePlayer();
+
     let board = initializeBoard();
-    displayBoard(board);
 
     while (true) {
       displayBoard(board);
-
-      playerChoosesSquare(board);
-      if (someoneWon(board) || boardFull(board)) break;
-
-      computerChoosesSquare(board);
+      chooseSquare(board, currentPlayer);
+      currentPlayer = alternatePlayer(currentPlayer);
       if (someoneWon(board) || boardFull(board)) break;
     }
 
