@@ -69,18 +69,18 @@ function playerChoosesSquare(board) {
 function computerChoosesSquare(board) {
   let square;
 
-  // defense
+  // offence
   for (let idx = 0; idx < WINNING_LINES.length; idx++) {
     let line = WINNING_LINES[idx];
-    square = computerDefendsSquare(line, board, HUMAN_MARKER);
+    square = computerDefendsSquare(line, board, COMPUTER_MARKER);
     if (square) break;
   }
 
-  // offence
+  // defense
   if (!square) {
     for (let idx = 0; idx < WINNING_LINES.length; idx++) {
       let line = WINNING_LINES[idx];
-      square = computerDefendsSquare(line, board, COMPUTER_MARKER);
+      square = computerDefendsSquare(line, board, HUMAN_MARKER);
       if (square) break;
     }
   }
