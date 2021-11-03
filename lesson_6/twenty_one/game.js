@@ -111,7 +111,15 @@ function playAgain() {
   return answer === 'y';
 }
 
-while (true) {
+function endRound(playerHand, playerTotal, dealerHand, dealerTotal) {
+  console.log('================================');
+  prompt(`Player has ${displayCardValues(playerHand)} for a total of ${playerTotal}`);
+  prompt(`Dealer has ${displayCardValues(dealerHand)} for a total of ${dealerTotal}`);
+  displayResult(playerTotal, dealerTotal);
+  console.log('================================');
+}
+
+do {
   let deck = shuffle(CARDS);
 
   let playerHand = dealHand(deck, []);
@@ -139,19 +147,11 @@ while (true) {
   }
 
   if (busted(playerTotal) ) {
-    console.log('================================');
-    displayResult(playerTotal, dealerTotal);
-    console.log('================================');
-
-    if (playAgain()) {
-      continue;
-    } else {
-      break;
-    }
+    endRound(playerHand, playerTotal, dealerHand, dealerTotal);
+    continue;
   } else {
     prompt(`You stayed at ${playerTotal}`);
   }
-
 
   // dealer turn
   prompt('Dealer turn...');
@@ -164,25 +164,11 @@ while (true) {
   }
 
   if (busted(dealerTotal)) {
-    console.log('================================');
-    prompt(`Dealer total is now: ${dealerTotal}`);
-    displayResult(playerTotal, dealerTotal);
-    console.log('================================');
-    if (playAgain()) {
-      continue;
-    } else {
-      break;
-    }
+    endRound(playerHand, playerTotal, dealerHand, dealerTotal);
+    continue;
   } else {
     prompt(`Dealer stays at ${dealerTotal}`);
   }
 
-  console.log('================================');
-  prompt(`Player has ${displayCardValues(playerHand)} for a total of ${playerTotal}`);
-  prompt(`Dealer has ${displayCardValues(dealerHand)} for a total of ${dealerTotal}`);
-  displayResult(playerHand, dealerHand);
-  console.log('================================');
-
-  if (!playAgain()) break;
-
-}
+  endRound(playerHand, playerTotal, dealerHand, dealerTotal);
+} while (playAgain());
