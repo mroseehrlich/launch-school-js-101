@@ -65,6 +65,54 @@ function displayCardValues(cards) {
   return cardValues.slice(0, cards.length - 1).join(', ') + ' and ' + cardValues[cardValues.length - 1];
 }
 
+function checkResult(playerCards, dealerCards) {
+  let playerTotal = total(playerCards);
+  let dealerTotal = total(dealerCards);
+
+  if (playerTotal > 21) {
+    return 'PLAYER_BUST';
+  } else if (dealerTotal > 21) {
+    return 'DEALER_BUST';
+  } else if (playerTotal > dealerTotal) {
+    return 'PLAYER';
+  } else if (dealerTotal > playerTotal) {
+    return 'DEALER';
+  } else {
+    return 'TIE';
+  }
+}
+
+function displayResult(playerCards, dealerCards) {
+  let result = checkResult(playerCards, dealerCards);
+
+  switch (result) {
+    case 'PLAYER_BUST':
+      return prompt('You busted! Dealer wins!');
+    case 'DEALER_BUST':
+      return prompt('Dealer busted! You win!');
+    case 'PLAYER':
+      return prompt('You win!');
+    case 'DEALER':
+      return prompt('Dealer wins!');
+    case 'TIE':
+      return prompt('It\'s a tie!');
+  }
+
+  return null;
+}
+
+function playAgain() {
+  prompt('Would you like to play again? (y/n)');
+  let answer = readline.question().trim().toLowerCase();
+
+  while (answer !== 'y' && answer !== 'n') {
+    prompt('That is not a valid input. Please entire "y" or "n".');
+    answer = readline.question().trim().toLowerCase();
+  }
+
+  return answer;
+}
+
 while (true) {
   let deck = shuffle(CARDS);
 
@@ -77,7 +125,7 @@ while (true) {
 
   while (true) {
     playerHand = dealHand(deck, playerHand);
-    prompt(`You have: ${displayCardValues(playerHand)}`);
+    prompt(`You have: ${displayCardValues(playerHand)} for a total of ${total(playerHand)}`);
 
     if (!busted(playerHand)) {
       prompt('hit or stay?');
@@ -87,35 +135,47 @@ while (true) {
   }
 
   if (busted(playerHand) ) {
-    prompt(`Dealer wins`);
+    console.log('================================');
+    displayResult(playerHand, dealerHand);
+    console.log('==============================================');
+
+    if (playAgain()) {
+      continue;
+    } else {
+      break;
+    }
   } else {
-    console.log("You chose to stay!");  // if player didn't bust, must have stayed to get here
+    prompt(`You stayed at ${total(playerHand)}`);
   }
 
 
   // dealer turn
-  while (true) {
-    if (total(dealerHand) >= 17) break;
+  prompt('Dealer turn...');
+
+  while (total(dealerHand) < 17) {
     dealerHand = dealHand(deck, dealerHand);
+    prompt(`Dealer has: ${displayCardValues(dealerHand)} for a total of ${total(dealerHand)}`);
   }
 
   if (busted(dealerHand)) {
-    prompt('Player wins');
-  }
-
-  prompt(`Player score: ${total(playerHand)}`);
-  prompt(`Dealer score: ${total(dealerHand)}`);
-
-  if (total(playerHand) > total(dealerHand)) {
-    prompt('Player wins!');
-  } else if (total(playerHand) < total(dealerHand)) {
-    prompt('Computer wins!');
+    console.log('================================');
+    displayResult(playerHand, dealerHand);
+    console.log('================================');
+    if (playAgain()) {
+      continue;
+    } else {
+      break;
+    }
   } else {
-    prompt('It\'s a tie!');
+    prompt(`Dealer stays at ${total(dealerHand)}`);
   }
 
-  prompt('Would you like to play again? (y/n)');
-  let answer = readline.question().trim().toLowerCase();
-  if (answer !== 'y') break;
+  console.log('================================');
+  prompt(`Player has ${displayCardValues(playerHand)} for a total of ${total(playerHand)}`);
+  prompt(`Dealer has ${displayCardValues(dealerHand)} for a total of ${total(dealerHand)}`);
+  displayResult(playerHand, dealerHand);
+  console.log('================================');
+
+  if (!playAgain()) break;
 
 }
