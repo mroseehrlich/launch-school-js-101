@@ -37,8 +37,8 @@ function total(cards) {
   return sum;
 }
 
-function busted(cards) {
-  return total(cards) > 21;
+function busted(total) {
+  return total > 21;
 }
 
 function shuffle(array) {
@@ -51,7 +51,7 @@ function shuffle(array) {
 }
 
 function dealHand(deck, hand) {
-  hand.push(deck.pop());
+  hand.push(deck.pop(), deck.pop());
   return hand;
 }
 
@@ -65,9 +65,7 @@ function displayCardValues(cards) {
   return cardValues.slice(0, cards.length - 1).join(', ') + ' and ' + cardValues[cardValues.length - 1];
 }
 
-function checkResult(playerCards, dealerCards) {
-  let playerTotal = total(playerCards);
-  let dealerTotal = total(dealerCards);
+function checkResult(playerTotal, dealerTotal) {
 
   if (playerTotal > 21) {
     return 'PLAYER_BUST';
@@ -82,8 +80,8 @@ function checkResult(playerCards, dealerCards) {
   }
 }
 
-function displayResult(playerCards, dealerCards) {
-  let result = checkResult(playerCards, dealerCards);
+function displayResult(playerTotal, dealerTotal) {
+  let result = checkResult(playerTotal, dealerTotal);
 
   switch (result) {
     case 'PLAYER_BUST':
@@ -110,7 +108,7 @@ function playAgain() {
     answer = readline.question().trim().toLowerCase();
   }
 
-  return answer;
+  return answer === 'y';
 }
 
 while (true) {
@@ -118,26 +116,32 @@ while (true) {
 
   let playerHand = dealHand(deck, []);
   let dealerHand = dealHand(deck, []);
+  let playerTotal = total(playerHand);
+  let dealerTotal = total(dealerHand);
 
   // player turn
 
   prompt(`Dealer has: ${dealerHand[0][1]} and unknown card`);
 
   while (true) {
-    playerHand = dealHand(deck, playerHand);
-    prompt(`You have: ${displayCardValues(playerHand)} for a total of ${total(playerHand)}`);
+    prompt(`You have: ${displayCardValues(playerHand)} for a total of ${playerTotal}`);
 
-    if (!busted(playerHand)) {
+    if (!busted(playerTotal)) {
       prompt('hit or stay?');
       let answer = readline.question();
       if (answer === 'stay') break;
+
+      if (answer === 'hit') {
+        playerHand.push(deck.pop());
+        playerTotal = total(playerHand);
+      }
     } else break;
   }
 
-  if (busted(playerHand) ) {
+  if (busted(playerTotal) ) {
     console.log('================================');
-    displayResult(playerHand, dealerHand);
-    console.log('==============================================');
+    displayResult(playerTotal, dealerTotal);
+    console.log('================================');
 
     if (playAgain()) {
       continue;
@@ -145,21 +149,24 @@ while (true) {
       break;
     }
   } else {
-    prompt(`You stayed at ${total(playerHand)}`);
+    prompt(`You stayed at ${playerTotal}`);
   }
 
 
   // dealer turn
   prompt('Dealer turn...');
 
-  while (total(dealerHand) < 17) {
-    dealerHand = dealHand(deck, dealerHand);
-    prompt(`Dealer has: ${displayCardValues(dealerHand)} for a total of ${total(dealerHand)}`);
+  while (dealerTotal < 17) {
+    prompt(`Dealer hits!`);
+    dealerHand.push(deck.pop());
+    prompt(`Dealer has: ${displayCardValues(dealerHand)}.`);
+    dealerTotal = total(dealerHand);
   }
 
-  if (busted(dealerHand)) {
+  if (busted(dealerTotal)) {
     console.log('================================');
-    displayResult(playerHand, dealerHand);
+    prompt(`Dealer total is now: ${dealerTotal}`);
+    displayResult(playerTotal, dealerTotal);
     console.log('================================');
     if (playAgain()) {
       continue;
@@ -167,12 +174,12 @@ while (true) {
       break;
     }
   } else {
-    prompt(`Dealer stays at ${total(dealerHand)}`);
+    prompt(`Dealer stays at ${dealerTotal}`);
   }
 
   console.log('================================');
-  prompt(`Player has ${displayCardValues(playerHand)} for a total of ${total(playerHand)}`);
-  prompt(`Dealer has ${displayCardValues(dealerHand)} for a total of ${total(dealerHand)}`);
+  prompt(`Player has ${displayCardValues(playerHand)} for a total of ${playerTotal}`);
+  prompt(`Dealer has ${displayCardValues(dealerHand)} for a total of ${dealerTotal}`);
   displayResult(playerHand, dealerHand);
   console.log('================================');
 
