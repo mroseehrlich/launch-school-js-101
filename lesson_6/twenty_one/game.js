@@ -1,18 +1,28 @@
 const readline = require('readline-sync');
 
-const CARDS = [
-  ['C', '2'], ['C', '3'], ['C', '4'], ['C', '5'], ['C', '6'], ['C', '7'], ['C', '8'],
-  ['C', '9'], ['C', '10'], ['C', 'J'], ['C', 'Q'], ['C', 'K'], ['C', 'A'],
-  ['D', '2'], ['D', '3'], ['D', '4'], ['D', '5'], ['D', '6'], ['D', '7'], ['D', '8'],
-  ['D', '9'], ['D', '10'], ['D', 'J'], ['D', 'Q'], ['D', 'K'], ['D', 'A'],
-  ['H', '2'], ['H', '3'], ['H', '4'], ['H', '5'], ['H', '6'], ['H', '7'], ['H', '8'],
-  ['H', '9'], ['H', '10'], ['H', 'J'], ['H', 'Q'], ['H', 'K'], ['H', 'A'],
-  ['S', '2'], ['S', '3'], ['S', '4'], ['S', '5'], ['S', '6'], ['S', '7'], ['S', '8'],
-  ['S', '9'], ['S', '10'], ['S', 'J'], ['S', 'Q'], ['S', 'K'], ['S', 'A'],
-];
+const SUITS = ['Hearts', 'Clubs', 'Diamonds', 'Spades'];
+const VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace'];
+
+const WINNING_SCORE = 21;
+const DEALER_STAYS_SCORE = 17;
+
+const WINNING_MATCH_SCORE = 5;
 
 function prompt(message) {
   console.log(`=> ${message}`);
+}
+
+function initializeDeck() {
+  let deck = [];
+
+  for (let suitsIdx = 0; suitsIdx < SUITS.length; suitsIdx++) {
+    for (let valuesIdx = 0; valuesIdx < VALUES.length; valuesIdx++) {
+      let card = [SUITS[suitsIdx], VALUES[valuesIdx]];
+      deck.push(card);
+    }
+  }
+
+  return deck;
 }
 
 function total(cards) {
@@ -20,9 +30,9 @@ function total(cards) {
 
   let sum = 0;
   values.forEach(value => {
-    if (value === 'A') {
+    if (value === 'Ace') {
       sum += 11;
-    } else if (['J', 'Q', 'K'].includes(value)) {
+    } else if (['Jack', 'Queen', 'King'].includes(value)) {
       sum += 10;
     } else {
       sum += Number(value);
@@ -31,14 +41,14 @@ function total(cards) {
 
   // correct for aces
   values.filter(value => value === 'A').forEach(_ => {
-    if (sum > 21) sum -= 10;
+    if (sum > WINNING_SCORE) sum -= 10;
   });
 
   return sum;
 }
 
 function busted(total) {
-  return total > 21;
+  return total > WINNING_SCORE;
 }
 
 function shuffle(array) {
@@ -55,6 +65,18 @@ function dealHand(deck, hand) {
   return hand;
 }
 
+function hitOrStay() {
+  prompt('Hit or stay?');
+  let answer = readline.question().trim().toLowerCase();
+
+  while (answer !== 'hit' && answer !== 'stay') {
+    prompt('That is not a valid answer. Please enter "hit" or "stay".');
+    answer = readline.question().trim().toLowerCase();
+  }
+
+  return answer;
+}
+
 function displayCardValues(cards) {
   let cardValues = cards.map(card => card[1]);
 
@@ -67,9 +89,9 @@ function displayCardValues(cards) {
 
 function checkResult(playerTotal, dealerTotal) {
 
-  if (playerTotal > 21) {
+  if (playerTotal > WINNING_SCORE) {
     return 'PLAYER_BUST';
-  } else if (dealerTotal > 21) {
+  } else if (dealerTotal > WINNING_SCORE) {
     return 'DEALER_BUST';
   } else if (playerTotal > dealerTotal) {
     return 'PLAYER';
@@ -99,6 +121,34 @@ function displayResult(playerTotal, dealerTotal) {
   return null;
 }
 
+function detectMatchWinner(playerTotal, dealerTotal) {
+  let result = checkResult(playerTotal, dealerTotal);
+
+  if (result === 'DEALER_BUST' || result === 'PLAYER') {
+    return 'player';
+  } else if (result === 'PLAYER_BUST' || result === 'DEALER') {
+    return 'dealer';
+  }
+
+  return null;
+}
+
+function displayMatchWinner(match) {
+  console.log('================================');
+  prompt(`Match Score:`);
+  prompt(`Dealer won ${match.dealer} rounds`);
+  prompt(`Player won ${match.player} round`);
+
+  if (match.player > match.dealer) {
+    prompt('Player wins match!');
+  } else if (match.dealer > match.player) {
+    prompt('Dealer wins match!');
+  } else {
+    prompt('Final match score is a tie!');
+  }
+  console.log('================================');
+}
+
 function playAgain() {
   prompt('Would you like to play again? (y/n)');
   let answer = readline.question().trim().toLowerCase();
@@ -111,64 +161,104 @@ function playAgain() {
   return answer === 'y';
 }
 
-function endRound(playerHand, playerTotal, dealerHand, dealerTotal) {
+function endRound(player, dealer, match) {
   console.log('================================');
-  prompt(`Player has ${displayCardValues(playerHand)} for a total of ${playerTotal}`);
-  prompt(`Dealer has ${displayCardValues(dealerHand)} for a total of ${dealerTotal}`);
-  displayResult(playerTotal, dealerTotal);
+  prompt(`Player has ${displayCardValues(player.hand)} for a total of ${player.total}`);
+  prompt(`Dealer has ${displayCardValues(dealer.hand)} for a total of ${dealer.total}`);
+  displayResult(player.total, dealer.total);
   console.log('================================');
+
+  let winner = detectMatchWinner(player.total, dealer.total);
+  match[winner] += 1;
+}
+
+
+function initializeMatch() {
+  return {
+    match: {
+      player: 0,
+      dealer: 0
+    },
+    currentRound: {}
+  };
+}
+
+function resetRound() {
+  return {
+    player: {
+      hand: [],
+      total: 0
+    },
+    dealer: {
+      hand: [],
+      total: 0
+    },
+  };
 }
 
 do {
-  let deck = shuffle(CARDS);
+  let scores = initializeMatch();
+  let {match} = scores;
 
-  let playerHand = dealHand(deck, []);
-  let dealerHand = dealHand(deck, []);
-  let playerTotal = total(playerHand);
-  let dealerTotal = total(dealerHand);
+  while (
+    match.player < WINNING_MATCH_SCORE &&
+    match.dealer < WINNING_MATCH_SCORE
+  ) {
+    scores.currentRound = resetRound();
+    let deck = initializeDeck();
+    deck = shuffle(deck);
 
-  // player turn
+    let {player, dealer} = scores.currentRound;
 
-  prompt(`Dealer has: ${dealerHand[0][1]} and unknown card`);
+    player.hand = dealHand(deck, []);
+    player.total = total(player.hand);
+    dealer.hand = dealHand(deck, []);
+    dealer.total = total(dealer.hand);
 
-  while (true) {
-    prompt(`You have: ${displayCardValues(playerHand)} for a total of ${playerTotal}`);
+    // player turn
 
-    if (!busted(playerTotal)) {
-      prompt('hit or stay?');
-      let answer = readline.question();
+    prompt(`Dealer has: ${dealer.hand[0][1]} and unknown card`);
+
+    do {
+      prompt(`You have: ${displayCardValues(player.hand)} for a total of ${player.total}`);
+
+      let answer = hitOrStay();
+
       if (answer === 'stay') break;
 
-      if (answer === 'hit') {
-        playerHand.push(deck.pop());
-        playerTotal = total(playerHand);
-      }
-    } else break;
+      player.hand.push(deck.pop());
+      player.total = total(player.hand);
+    } while (!busted(player.total));
+
+    if (busted(player.total) ) {
+      endRound(player, dealer, match);
+      continue;
+    } else {
+      console.log('================================');
+      prompt(`You stayed at ${player.total}`);
+      console.log('================================');
+    }
+
+    // dealer turn
+    prompt('Dealer turn...');
+
+    while (dealer.total < DEALER_STAYS_SCORE) {
+      prompt(`Dealer hits!`);
+      dealer.hand.push(deck.pop());
+      prompt(`Dealer has: ${displayCardValues(dealer.hand)}.`);
+      dealer.total = total(dealer.hand);
+    }
+
+    if (busted(dealer.total)) {
+      endRound(player, dealer, match);
+      continue;
+    } else {
+      prompt(`Dealer stays at ${dealer.total}`);
+    }
+
+    endRound(player, dealer, match);
   }
 
-  if (busted(playerTotal) ) {
-    endRound(playerHand, playerTotal, dealerHand, dealerTotal);
-    continue;
-  } else {
-    prompt(`You stayed at ${playerTotal}`);
-  }
+  displayMatchWinner(match);
 
-  // dealer turn
-  prompt('Dealer turn...');
-
-  while (dealerTotal < 17) {
-    prompt(`Dealer hits!`);
-    dealerHand.push(deck.pop());
-    prompt(`Dealer has: ${displayCardValues(dealerHand)}.`);
-    dealerTotal = total(dealerHand);
-  }
-
-  if (busted(dealerTotal)) {
-    endRound(playerHand, playerTotal, dealerHand, dealerTotal);
-    continue;
-  } else {
-    prompt(`Dealer stays at ${dealerTotal}`);
-  }
-
-  endRound(playerHand, playerTotal, dealerHand, dealerTotal);
 } while (playAgain());
