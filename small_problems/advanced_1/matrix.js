@@ -1,5 +1,9 @@
 const transpose = matrix => {
-  let newMatrix = [[], [], []];
+  let newMatrix = [];
+
+  for (let row = 0; row < matrix.length; row++) {
+    newMatrix.push([]);
+  }
 
   for (let rowIdx = 0; rowIdx < matrix.length; rowIdx++) {
     for (let columnIdx = 0; columnIdx < matrix[rowIdx].length; columnIdx++) {
