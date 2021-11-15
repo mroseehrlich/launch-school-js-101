@@ -9,7 +9,6 @@
   "author": "Mia Ehrlich",
   "license": "ISC",
   "dependencies": {
-    "fraction.js": "github:infusion/fraction.js",
     "readline-sync": "^1.4.10"
   },
   "devDependencies": {
